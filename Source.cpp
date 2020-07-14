@@ -5,8 +5,8 @@ using namespace std;
 #include <Windows.h>
 
 int nScreenWidth = 120; // Width of the console
-int nScreenHeight = 40; // Height of the console 
- 
+int nScreenHeight = 40; // Height of the console
+
 float fPlayerX = 8.0f;  // Player's x coor
 float fPlayerY = 8.0f;  // Player's y coor
 float fPlayerZ = 0.0f;  // Angle of the player's pov
@@ -22,7 +22,7 @@ int main()
     // Creates screen buffer
     wchar_t *screen = new wchar_t[nScreenWidth * nScreenHeight];
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0,
-            NULL, CONSLE_TEXTMODE_BUFFER, NULL);
+            NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
     DWORD dwBytesWritten = 0;
 
@@ -43,8 +43,11 @@ int main()
     map += L"#              #";
     map += L"#              #";
     map += L"#              #";
-    map += L"################";   
-    
+    map += L"################";
+
+    auto tp1 = chrono::system_clock::now();
+    auto tp2 = chrono::system_clock::now();
+
     // GAME LOOP
     while (true)
     {
@@ -57,15 +60,15 @@ int main()
         if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
             fPlayerA -= (0.5f) * fElapsedTime;
 
-        // Control that handle CCW rotations 
+        // Control that handle CCW rotations
         if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
             fPlayerD += (0.5f) * fElapsedTime;
-        
+
         // Control that handle forward movements
         if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
         {
             fPlayerX += sinf(fPlayerA) * 5.0f * fElapsedTime;
-            fPlayerY += cosf(fPlayerA) * 5.0f * fElapsedTime;   
+            fPlayerY += cosf(fPlayerA) * 5.0f * fElapsedTime;
 
             if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#')
             {
@@ -73,12 +76,12 @@ int main()
                 fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;
             }
         }
-        
+
         // Control that handle backward movements
         if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
         {
             fPlayerX -= sinf(fPlayerA) * 5.0f * fElapsedTime;
-            fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;   
+            fPlayerY -= cosf(fPlayerA) * 5.0f * fElapsedTime;
 
             if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#')
             {
@@ -91,7 +94,7 @@ int main()
         {
             // Calculate the projectted ray angle to R3 for each column
             float fRayAngle = (fPlayerA - fFOV / 2.0f) + ((float)x / (float)nScreenWidth) * fFOV;
-        
+
             float fDistanceToWall = 0;
             bool bHitWall = false; // Indicates whether the player hits the wall
             bool bBoundary = false;
@@ -123,7 +126,7 @@ int main()
                     // Test whether a wall block in ray
                     if (map[nMapWidth * nTestY + nTestX] == '#')
                     {
-                       bHitWall = true; 
+                       bHitWall = true;
 
                        vector<pair<float, float>> p; // distance, dot
 
@@ -137,7 +140,7 @@ int main()
                                float dot = (fEyeX * vx / d) + (fEyeY * vy / d);
                                p.push_back(make_pair(d, dot));
                            }
-                           
+
                            // Sort the vector pairs in ascending order in distance
                            sort(p.begin(), p.end(), [](const pair<float, float> &left, const pair<float, float> &right)
                                    {return left.first < right.first;});
@@ -149,16 +152,16 @@ int main()
                                bBoundary = true;
                            if (acos(p.at(2).second) < fBound)
                                bBoundary = true;
-                      
+
                        }
                     }
                 }
             }
-           
+
             // Distance to floor and ceiling
             int nCeiling = (float)(nScreenHeight / 2.0) - nScreenHeight / ((float)fDistanceToWall);
             int nFloor = nSreenHeight- nCeiling;
-            
+
             // ASCII shade variables
             // Refer to extended ASCII codes in www.asciitable.com
             short nShade = ' ';
@@ -170,11 +173,11 @@ int main()
             else if (fDistanceToWall < fDepth / 2.0f)   // Far
                 nShade = 0x2592;
             else if (fDistanceToWall < fDepth)          // Very far
-                nShade = 0x2591;                       
+                nShade = 0x2591;
             else                                        // Too far to compute
-                nShade = ' ';                        
+                nShade = ' ';
 
-            if (bBoundary)      
+            if (bBoundary)
                 nShade = ' ';                           // Black out the boundary
 
             for (int y = 0; y < nScreenHeight; y++)
@@ -195,19 +198,19 @@ int main()
                     screen[y * nScreenWidth + x] = nShade;
                 }
             }
-            
+
 
         }
 
         // Stats display
-        swprintf_s(screenm 40, L"X-%3.2f, Y=%3.2f, A=%3.2f, FPS=%3.2f ", 
+        swprintf_s(screenm 40, L"X-%3.2f, Y=%3.2f, A=%3.2f, FPS=%3.2f ",
                 fPlayerX, fPlayerY, fPlayerA, 1.0f / fElapsedTime);
-    
+
         // Mini map display
         for (int nx = 0; nx < nMapWidth; nx++)
         {
             for (int ny = 0; ny < nMapHeight; ny ++)
-            {    
+            {
                 screen[(ny + 1) * nScreenWidth + nx] = map[ny * nMapWidth + nx];
             }
         }
@@ -216,10 +219,10 @@ int main()
         screen[((int)fPlayerY + 1) * nScreenWidth + (int)fPlayerX] = 'P';
 
         screen[nScreenWidth * nScreenHeight - 1] = '\0';
-        WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, 
+        WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight,
                 { 0,0 }, &dwBytesWritten);
     }
     return 0;
-    
+
 
 }
