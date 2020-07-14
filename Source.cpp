@@ -1,7 +1,11 @@
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <utility>
+#include <algorithm>
 using namespace std;
 
+#include <stdio.h>
 #include <Windows.h>
 
 int nScreenWidth = 120; // Width of the console
