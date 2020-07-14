@@ -9,7 +9,7 @@ int nScreenHeight = 40; // Height of the console
 
 float fPlayerX = 8.0f;  // Player's x coor
 float fPlayerY = 8.0f;  // Player's y coor
-float fPlayerZ = 0.0f;  // Angle of the player's pov
+float fPlayerA = 0.0f;  // Angle of the player's pov
 
 int nMapHeight = 16;
 int nMapWidth = 16;
@@ -62,7 +62,7 @@ int main()
 
         // Control that handle CCW rotations
         if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
-            fPlayerD += (0.5f) * fElapsedTime;
+            fPlayerA += (0.5f) * fElapsedTime;
 
         // Control that handle forward movements
         if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
